@@ -1,0 +1,18 @@
+{
+  "name": "VanGank",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "build": "(cd android/ && ./gradlew assembleDebug)",
+    "start": "node node_modules/react-native/local-cli/cli.js start",
+    "bundle-android": "react-native bundle --platform android --dev false --entry-file index.android.js --bundle-output android/app/src/main/assets/index.android.bundle --sourcemap-output android/app/src/main/assets/index.android.map --assets-dest android/app/src/main/res/"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "react": "15.2.1",
+    "react-native": "0.31.0",
+    "rn-viewpager": "^1.1.3"
+  }
+}

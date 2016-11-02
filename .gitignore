@@ -1,0 +1,18 @@
+*.iml
+.gradle
+/local.properties
+/.idea/workspace.xml
+/.idea/libraries
+.DS_Store
+/build
+/captures
+
+# node
+node_modules/
+
+# idea
+.idea/
+
+# vscode
+.vscode/
+
