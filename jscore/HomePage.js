@@ -33,6 +33,7 @@ var _homePageContext;
 var latestContent;
 var pageNo = 1;
 var screenWidth = CommonUtils.getScreenWidth();
+var screenHeight = CommonUtils.getScreenHeight();
 
 class HomePage extends Component {
 
@@ -46,6 +47,9 @@ class HomePage extends Component {
             loaded: false,
             androidHistoryDataSource: new ListView.DataSource({
                 rowHasChanged: (row1, row2)=>row1 !== row2
+            }),
+            fuliHistoryDataSource: new ListView.DataSource({
+                rowHasChanged: (row1, row2)=>row1 !== row2
             })
         };
     }
@@ -53,10 +57,10 @@ class HomePage extends Component {
     componentDidMount() {
 
         this._getAndroidData();
+        this._get福利Data();
     }
 
     _getAndroidData() {
-
         RequestUtils.getAndroidData(pageNo)
             .then((androidList)=> {
                 _homePageContext.setState({
@@ -64,8 +68,18 @@ class HomePage extends Component {
                     androidHistoryDataSource: this.state.androidHistoryDataSource.cloneWithRows(androidList)
                 });
             })
-
     }
+
+    _get福利Data() {
+        RequestUtils.get福利Data(pageNo)
+            .then((androidList)=> {
+                _homePageContext.setState({
+                    loaded: true,
+                    fuliHistoryDataSource: this.state.fuliHistoryDataSource.cloneWithRows(androidList)
+                });
+            })
+    }
+
 
     _getLatestData() {
         RequestUtils.getLatestDate()
@@ -111,13 +125,13 @@ class HomePage extends Component {
         );
     }
 
-    _gen福利ItemRenderView(){
+    _gen福利ItemRenderView() {
         return (
             <View style={styles.androidHistoryContainer}>
 
                 <ListView
-                    dataSource={_homePageContext.state.androidHistoryDataSource}
-                    renderRow={_homePageContext._renderAndroidHistoryDataRow}
+                    dataSource={_homePageContext.state.fuliHistoryDataSource}
+                    renderRow={_homePageContext._renderFuliHistoryDataRow}
                     renderSeparator={_homePageContext._renderSeparator}
                 />
             </View>
@@ -166,6 +180,10 @@ class HomePage extends Component {
         return "http://o7zh7nhn0.bkt.clouddn.com/hehe.png?imageView2/0/w/" + Math.floor(screenWidth);
     }
 
+    _parseFuliUri(fuliHistoryItem) {
+        return fuliHistoryItem.url;
+    }
+
     _onPressAndroidItem(androidHistoryItem) {
         _homePageContext.props.navigator.push({
             component: WebViewPage,
@@ -173,6 +191,24 @@ class HomePage extends Component {
                 androidHistoryItem
             }
         });
+    }
+
+    _renderFuliHistoryDataRow(androidHistoryItem, sectionId, rowId) {
+
+        return (
+
+                <View
+                    style={styles.androidHistoryItem}
+                >
+                    <Image
+                        style={styles.fuliHistoryItemImage}
+                        source={{uri:_homePageContext._parseFuliUri(androidHistoryItem)}}
+                        elevation={5}
+                    >
+                    </Image>
+
+                </View>
+        );
     }
 
     _renderAndroidHistoryDataRow(androidHistoryItem, sectionId, rowId) {
@@ -267,6 +303,11 @@ const styles = StyleSheet.create({
         width: screenWidth,
         height: 20,
         backgroundColor: '#FFF8DC'
+    },
+
+    fuliHistoryItemImage: {
+        width: screenWidth,
+        height: screenHeight,
     }
 
 });
