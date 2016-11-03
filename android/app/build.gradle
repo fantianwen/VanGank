@@ -29,6 +29,10 @@ dependencies {
     compile fileTree(dir: 'libs', include: ['*.jar'])
     testCompile 'junit:junit:4.12'
     compile 'com.android.support:appcompat-v7:23.4.0'
-    compile 'com.facebook.react:react-native:+'
-    compile 'com.squareup.okhttp3:okhttp:2.5.0'
+    compile ('com.facebook.react:react-native:+') {
+        exclude group: 'com.parse.bolts', module: 'bolts-tasks'
+    }
+    compile ('com.facebook.fresco:animated-gif:0.10.0'){
+        exclude group: 'com.parse.bolts', module: 'bolts-tasks'
+    }
 }

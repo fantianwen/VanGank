@@ -12,6 +12,8 @@ var API_HISTORY = 'http://gank.io/api/day/history';
 // android历史数据
 var API_ANDROID_HISTORY = 'http://gank.io/api/data/Android/10/';
 
+var API_IOS_HISTORY = 'http://gank.io/api/data/Android/10/';
+
 const RequestUtils = {
 
     getToadyContentPromise(date:String){
@@ -102,7 +104,8 @@ const RequestUtils = {
         });
 
         return androidData;
-    }
+    },
+
 
 
 }

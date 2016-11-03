@@ -27,10 +27,12 @@ import {
 
 import RequestUtils from './utils/RequestUtils'
 import WebViewPage from './WebViewPage'
+import CommonUtils from './utils/CommonUtls'
 
 var _homePageContext;
 var latestContent;
 var pageNo = 1;
+var screenWidth = CommonUtils.getScreenWidth();
 
 class HomePage extends Component {
 
@@ -144,9 +146,9 @@ class HomePage extends Component {
 
     _parseImageUri(androidHistoryItem) {
         if (androidHistoryItem.hasOwnProperty('images')) {
-            return androidHistoryItem.images[0] + "?imageView2/0/w/53";
+            return androidHistoryItem.images[0] + "?imageView2/0/w/" + Math.floor(screenWidth);
         }
-        return "http://img.gank.io/1dce0d48-99aa-4d68-83bc-d3f08b68c1c3?imageView2/0/w/53";
+        return "http://img.gank.io/1dce0d48-99aa-4d68-83bc-d3f08b68c1c3?imageView2/0/w/" + Math.floor(screenWidth);
     }
 
     _onPressAndroidItem(androidHistoryItem) {
@@ -166,16 +168,13 @@ class HomePage extends Component {
                 activeOpacity={0.8}
                 onPress={()=>_homePageContext._onPressAndroidItem(androidHistoryItem)}
             >
-
                 <View
                     style={styles.androidHistoryItem}
                 >
-
                     <Image
                         style={styles.androidHistoryItemImage}
                         source={{uri:_homePageContext._parseImageUri(androidHistoryItem)}}
                     >
-
                     </Image>
 
                     <Text
@@ -186,7 +185,6 @@ class HomePage extends Component {
                     </Text>
 
                 </View>
-
             </TouchableOpacity>
 
         );
@@ -217,13 +215,13 @@ const styles = StyleSheet.create({
 
     androidHistoryItem: {
         flex: 1,
-        flexDirection: 'row',
+        flexDirection: 'column',
         alignItems: 'center'
     },
 
     androidHistoryItemImage: {
-        width: 53,
-        height: 81
+        width: screenWidth,
+        height: 250
     },
 
     androidHistoryItemDesc: {
