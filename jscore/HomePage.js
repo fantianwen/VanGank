@@ -97,6 +97,32 @@ class HomePage extends Component {
         );
     }
 
+    _genAndroidItemRenderView() {
+        return (
+            <View style={styles.androidHistoryContainer}>
+
+                <ListView
+                    dataSource={_homePageContext.state.androidHistoryDataSource}
+                    renderRow={_homePageContext._renderAndroidHistoryDataRow}
+                    renderSeparator={_homePageContext._renderSeparator}
+                />
+
+            </View>
+        );
+    }
+
+    _gen福利ItemRenderView(){
+        return (
+            <View style={styles.androidHistoryContainer}>
+
+                <ListView
+                    dataSource={_homePageContext.state.androidHistoryDataSource}
+                    renderRow={_homePageContext._renderAndroidHistoryDataRow}
+                    renderSeparator={_homePageContext._renderSeparator}
+                />
+            </View>
+        );
+    }
 
     render() {
 
@@ -114,22 +140,11 @@ class HomePage extends Component {
                         indicator={this._renderTitleIndicator()}
                         initialPage={0}
                     >
-                        <View style={styles.androidHistoryContainer}>
 
-                            <ListView
+                        {_homePageContext._genAndroidItemRenderView()}
+                        {_homePageContext._genAndroidItemRenderView()}
+                        {_homePageContext._gen福利ItemRenderView()}
 
-                                dataSource={_homePageContext.state.androidHistoryDataSource}
-                                renderRow={_homePageContext._renderAndroidHistoryDataRow}
-
-                            />
-
-                        </View>
-                        <View style={{backgroundColor:'cornflowerblue'}}>
-                            <Text>page two</Text>
-                        </View>
-                        <View style={{backgroundColor:'#1AA094'}}>
-                            <Text>page three</Text>
-                        </View>
                     </IndicatorViewPager>
 
 
@@ -148,7 +163,7 @@ class HomePage extends Component {
         if (androidHistoryItem.hasOwnProperty('images')) {
             return androidHistoryItem.images[0] + "?imageView2/0/w/" + Math.floor(screenWidth);
         }
-        return "http://img.gank.io/1dce0d48-99aa-4d68-83bc-d3f08b68c1c3?imageView2/0/w/" + Math.floor(screenWidth);
+        return "http://o7zh7nhn0.bkt.clouddn.com/hehe.png?imageView2/0/w/" + Math.floor(screenWidth);
     }
 
     _onPressAndroidItem(androidHistoryItem) {
@@ -174,6 +189,7 @@ class HomePage extends Component {
                     <Image
                         style={styles.androidHistoryItemImage}
                         source={{uri:_homePageContext._parseImageUri(androidHistoryItem)}}
+                        elevation={5}
                     >
                     </Image>
 
@@ -186,9 +202,19 @@ class HomePage extends Component {
 
                 </View>
             </TouchableOpacity>
+        );
+    }
+
+    _renderSeparator() {
+        return (
+
+            <View
+                style={styles.listViewSeparator}
+            >
+
+            </View>
 
         );
-
     }
 
 }
@@ -216,7 +242,10 @@ const styles = StyleSheet.create({
     androidHistoryItem: {
         flex: 1,
         flexDirection: 'column',
-        alignItems: 'center'
+        alignItems: 'center',
+        backgroundColor: '#FDF5E6',
+        paddingTop: 10,
+        paddingBottom: 20
     },
 
     androidHistoryItemImage: {
@@ -225,11 +254,19 @@ const styles = StyleSheet.create({
     },
 
     androidHistoryItemDesc: {
-        textAlign: 'center'
+        textAlign: 'center',
+        marginTop: 10,
+        fontSize: 16
     },
 
     androidHistoryContainer: {
         backgroundColor: '#FFB6C1'
+    },
+
+    listViewSeparator: {
+        width: screenWidth,
+        height: 20,
+        backgroundColor: '#FFF8DC'
     }
 
 });

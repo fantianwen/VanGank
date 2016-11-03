@@ -1,6 +1,3 @@
-/**
- * Created by RadAsm on 16/8/29.
- */
 'use strict'
 
 import TimeUtils from './TimeUtils'
@@ -12,7 +9,10 @@ var API_HISTORY = 'http://gank.io/api/day/history';
 // android历史数据
 var API_ANDROID_HISTORY = 'http://gank.io/api/data/Android/10/';
 
-var API_IOS_HISTORY = 'http://gank.io/api/data/Android/10/';
+var API_IOS_HISTORY = 'http://gank.io/api/data/IOS/10/';
+
+// 福利
+var API_福利_HISTORY = 'http://gank.io/api/data/福利/10/'
 
 const RequestUtils = {
 
@@ -106,7 +106,31 @@ const RequestUtils = {
         return androidData;
     },
 
+    /**
+     * 获取android数据
+     *
+     * @param pageNo
+     */
+    async get福利Data(pageNo){
+        let androidData = new Promise((resolve, reject)=> {
 
+            let history福利DataUrl = API_福利_HISTORY + pageNo;
+
+            fetch(history福利DataUrl)
+                .then((response)=> {
+                    return response.json();
+                })
+                .then((jsonResult)=> {
+                    if (!jsonResult.error) {
+                        resolve(jsonResult.results);
+                    } else {
+                        reject();
+                    }
+                });
+        });
+
+        return androidData;
+    }
 
 }
 
