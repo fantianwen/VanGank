@@ -14,6 +14,7 @@ var API_IOS_HISTORY = 'http://gank.io/api/data/IOS/10/';
 // 福利
 var API_福利_HISTORY = 'http://gank.io/api/data/福利/10/'
 
+
 const RequestUtils = {
 
     getToadyContentPromise(date:String){
@@ -130,6 +131,11 @@ const RequestUtils = {
         });
 
         return androidData;
+    },
+
+
+    getAllData(pageNo){
+        return Promise.all([getAndroidData(pageNo),get福利Data(pageNo)]);
     }
 
 }

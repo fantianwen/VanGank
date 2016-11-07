@@ -28,6 +28,7 @@ import {
 import RequestUtils from './utils/RequestUtils'
 import WebViewPage from './WebViewPage'
 import CommonUtils from './utils/CommonUtls'
+import VanGankRequest from './utils/VanRequest'
 
 var _homePageContext;
 var latestContent;
@@ -45,6 +46,7 @@ class HomePage extends Component {
 
         this.state = {
             loaded: false,
+            status: 'OK',
             androidHistoryDataSource: new ListView.DataSource({
                 rowHasChanged: (row1, row2)=>row1 !== row2
             }),
@@ -55,9 +57,35 @@ class HomePage extends Component {
     }
 
     componentDidMount() {
+        this._getAllData();
+    }
 
-        this._getAndroidData();
-        this._get福利Data();
+    _getAllData() {
+        //RequestUtils.getAllData()
+        //    .then((allData)=> {
+        //        _homePageContext.setState({
+        //            loaded: true,
+        //            androidHistoryDataSource: this.state.androidHistoryDataSource.cloneWithRows(allData.slice(0, 11)),
+        //            fuliHistoryDataSource: this.state.fuliHistoryDataSource.cloneWithRows(allData.slice(11, 20))
+        //        });
+        //    })
+
+        let vanGankRequest = new VanGankRequest();
+        vanGankRequest.requestALL(1, (requestStatus, result)=> {
+            if (requestStatus === 'OK') {
+                _homePageContext.setState({
+                    loaded: true,
+                    status: 'OK',
+                    androidHistoryDataSource: this.state.androidHistoryDataSource.cloneWithRows(result[0].results),
+                    fuliHistoryDataSource: this.state.fuliHistoryDataSource.cloneWithRows(result[1].results)
+                });
+            } else {
+                _homePageContext.setState({
+                    loaded: true,
+                    status: 'FAIL'
+                });
+            }
+        })
     }
 
     _getAndroidData() {
@@ -80,7 +108,6 @@ class HomePage extends Component {
             })
     }
 
-
     _getLatestData() {
         RequestUtils.getLatestDate()
             .then((value)=> {
@@ -97,7 +124,6 @@ class HomePage extends Component {
                 alert('error:' + errorMsg);
             })
     }
-
 
     _showLoadingView() {
         return (
@@ -119,6 +145,7 @@ class HomePage extends Component {
                     dataSource={_homePageContext.state.androidHistoryDataSource}
                     renderRow={_homePageContext._renderAndroidHistoryDataRow}
                     renderSeparator={_homePageContext._renderSeparator}
+
                 />
 
             </View>
@@ -161,7 +188,6 @@ class HomePage extends Component {
 
                     </IndicatorViewPager>
 
-
                 </View>
 
             );
@@ -197,17 +223,17 @@ class HomePage extends Component {
 
         return (
 
-                <View
-                    style={styles.androidHistoryItem}
+            <View
+                style={styles.androidHistoryItem}
+            >
+                <Image
+                    style={styles.fuliHistoryItemImage}
+                    source={{uri:_homePageContext._parseFuliUri(androidHistoryItem)}}
+                    elevation={5}
                 >
-                    <Image
-                        style={styles.fuliHistoryItemImage}
-                        source={{uri:_homePageContext._parseFuliUri(androidHistoryItem)}}
-                        elevation={5}
-                    >
-                    </Image>
+                </Image>
 
-                </View>
+            </View>
         );
     }
 
@@ -243,13 +269,11 @@ class HomePage extends Component {
 
     _renderSeparator() {
         return (
-
             <View
                 style={styles.listViewSeparator}
             >
 
             </View>
-
         );
     }
 
