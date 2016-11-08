@@ -16,7 +16,8 @@ import {
     ListView,
     Image,
     ToastAndroid,
-    TouchableOpacity
+    TouchableOpacity,
+    RefreshControl
 } from 'react-native';
 
 import {
@@ -35,6 +36,8 @@ var pageNo = 1;
 var screenWidth = CommonUtils.getScreenWidth();
 var screenHeight = CommonUtils.getScreenHeight();
 
+var _vanRequest;
+
 class HomePage extends Component {
 
     // 构造
@@ -42,6 +45,8 @@ class HomePage extends Component {
         super(props);
         // 初始状态
         _homePageContext = this;
+
+        _vanRequest = new VanGankRequest();
 
         this.state = {
             loaded: false,
@@ -54,7 +59,10 @@ class HomePage extends Component {
             }),
             fuliHistoryDataSource: new ListView.DataSource({
                 rowHasChanged: (row1, row2)=>row1 !== row2
-            })
+            }),
+
+            refreshing: false
+
         };
     }
 
@@ -64,22 +72,31 @@ class HomePage extends Component {
 
     _getAllData() {
 
-        let vanGankRequest = new VanGankRequest();
-        vanGankRequest.requestALL(1, (requestStatus, result)=> {
+        _homePageContext._ensureVanRequest();
+
+        _vanRequest.requestALL(1, (requestStatus, result)=> {
             if (requestStatus === 'OK') {
                 _homePageContext.setState({
                     loaded: true,
                     status: 'OK',
+                    refreshing: false,
                     androidHistoryDataSource: this.state.androidHistoryDataSource.cloneWithRows(result[0].results),
                     fuliHistoryDataSource: this.state.fuliHistoryDataSource.cloneWithRows(result[1].results)
                 });
             } else {
                 _homePageContext.setState({
                     loaded: true,
-                    status: 'FAIL'
+                    status: 'FAIL',
+                    refreshing: false
                 });
             }
         })
+    }
+
+    _ensureVanRequest() {
+        if (!_vanRequest) {
+            _vanRequest = new VanGankRequest();
+        }
     }
 
     _showLoadingView() {
@@ -102,11 +119,86 @@ class HomePage extends Component {
                     dataSource={_homePageContext.state.androidHistoryDataSource}
                     renderRow={_homePageContext._renderAndroidHistoryDataRow}
                     renderSeparator={_homePageContext._renderSeparator}
-
+                    refreshControl={
+                        <RefreshControl
+                            refreshing={_homePageContext.state.refreshing}
+                            onRefresh={()=>{
+                                    _homePageContext._onRefresh(0);
+                                }
+                            }
+                            tintColor='#aaaaaa'
+                            title='Loading...'
+                            colors={['#ffaa66cc', '#ff00ddff', '#ffffbb33', '#ffff4444']}
+                        />
+                    }
                 />
 
             </View>
         );
+    }
+
+    _onRefresh(type) {
+
+        _homePageContext.setState({
+            refreshing: true
+        });
+
+        if (type == 0) {
+            // android 数据
+            _homePageContext._getAndroidData(1);
+        } else if (type === 1) {
+            // IOS 数据
+        } else if (type === 2) {
+            _homePageContext._getFuliData(1);
+        } else {
+            _homePageContext._getAllData();
+        }
+
+    }
+
+    _getAndroidData(pageNo) {
+        _homePageContext._ensureVanRequest();
+        _vanRequest.requestAndroid(pageNo, (requestStatus, result)=> {
+            if (requestStatus === 'OK') {
+                ToastAndroid.show(JSON.stringify(result), ToastAndroid.LONG);
+                _homePageContext.setState({
+                    loaded: true,
+                    status: 'OK',
+                    refreshing: false,
+                    androidHistoryDataSource: this.state.androidHistoryDataSource.cloneWithRows(result.results)
+                });
+            } else {
+                _homePageContext.setState({
+                    loaded: true,
+                    status: 'FAIL',
+                    refreshing: false
+                });
+            }
+        });
+    }
+
+    _getFuliData(pageNo) {
+        _homePageContext._ensureVanRequest();
+        _vanRequest.requestFuli(pageNo, (requestStatus, result)=> {
+            if (requestStatus === 'OK') {
+
+                ToastAndroid.show(JSON.stringify(result), ToastAndroid.LONG);
+
+                _homePageContext.setState({
+                    loaded: true,
+                    status: 'OK',
+                    refreshing: false,
+                    fuliHistoryDataSource: this.state.fuliHistoryDataSource.cloneWithRows(result.results)
+                });
+            } else {
+                _homePageContext.setState({
+                    loaded: true,
+                    status: 'FAIL',
+                    refreshing: false
+                });
+            }
+        });
+
     }
 
     _gen福利ItemRenderView() {
@@ -117,6 +209,18 @@ class HomePage extends Component {
                     dataSource={_homePageContext.state.fuliHistoryDataSource}
                     renderRow={_homePageContext._renderFuliHistoryDataRow}
                     renderSeparator={_homePageContext._renderSeparator}
+                    refreshControl={
+                        <RefreshControl
+                            refreshing={_homePageContext.state.refreshing}
+                            onRefresh={()=>{
+                                    _homePageContext._onRefresh(2);
+                                }
+                            }
+                            tintColor='#aaaaaa'
+                            title='Loading...'
+                            colors={['#ffaa66cc', '#ff00ddff', '#ffffbb33', '#ffff4444']}
+                        />
+                    }
                 />
             </View>
         );
@@ -148,9 +252,9 @@ class HomePage extends Component {
                     >
                         <Text
                             style={{
-                                flex:1,
-                                alignSelf: 'center'
-                            }}
+                    flex: 1,
+                    alignSelf: 'center'
+                }}
                         >
                             访问错误!
                         </Text>
@@ -193,7 +297,7 @@ class HomePage extends Component {
             >
                 <Image
                     style={styles.fuliHistoryItemImage}
-                    source={{uri:_homePageContext._parseFuliUri(androidHistoryItem)}}
+                    source={{uri: _homePageContext._parseFuliUri(androidHistoryItem)}}
                     elevation={5}
                 >
                 </Image>
@@ -215,7 +319,7 @@ class HomePage extends Component {
                 >
                     <Image
                         style={styles.androidHistoryItemImage}
-                        source={{uri:_homePageContext._parseImageUri(androidHistoryItem)}}
+                        source={{uri: _homePageContext._parseImageUri(androidHistoryItem)}}
                         elevation={5}
                     >
                     </Image>
@@ -302,7 +406,7 @@ const styles = StyleSheet.create({
     error: {
         flex: 1,
         alignItems: 'center',
-        flexDirection:'column'
+        flexDirection: 'column'
     }
 
 });

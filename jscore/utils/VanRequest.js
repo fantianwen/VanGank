@@ -54,12 +54,33 @@ class VanGankRequest {
         Promise
             .all([_context.requestAndroidData(pageNo), _context.requestFULIData(pageNo)])
             .then((response)=> {
-                callBack("OK", response);
+                callBack('OK', response);
             })
             .catch((error)=> {
-                callBack("FAIL", error);
+                callBack('FAIL', error);
             })
     }
+
+    requestAndroid(pageNo, callBack) {
+        _context.requestAndroidData(pageNo)
+            .then((response)=> {
+                callBack('OK', response)
+            })
+            .catch((error)=> {
+                callBack('FAIL', error)
+            })
+    }
+
+    requestFuli(pageNo, callBack) {
+        _context.requestFULIData(pageNo)
+            .then((response)=> {
+                callBack('OK', response)
+            })
+            .catch((error)=> {
+                callBack('FAIL', error)
+            })
+    }
+
 
 }
 
