@@ -16,5 +16,4 @@
     react-native run-android
     ```
     
-    
 ### Thanks!    

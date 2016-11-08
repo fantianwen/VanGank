@@ -64,9 +64,7 @@ const RequestUtils = {
      * @returns {Promise}
      */
     async getLatestDate(){
-
         let latestContent = new Promise((resolve, reject)=> {
-
             fetch(API_HISTORY)
                 .then((response)=> {
                     return response.json();
@@ -77,7 +75,6 @@ const RequestUtils = {
                     }
                 })
         });
-
         return latestContent;
     },
 
