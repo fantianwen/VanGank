@@ -25,7 +25,6 @@ import {
     PagerTabIndicator
 } from 'rn-viewpager';
 
-import RequestUtils from './utils/RequestUtils'
 import WebViewPage from './WebViewPage'
 import CommonUtils from './utils/CommonUtls'
 import VanGankRequest from './utils/VanRequest'
@@ -46,8 +45,11 @@ class HomePage extends Component {
 
         this.state = {
             loaded: false,
-            status: 'OK',
+            status: 'OK',//FAIL
             androidHistoryDataSource: new ListView.DataSource({
+                rowHasChanged: (row1, row2)=>row1 !== row2
+            }),
+            iosHistoryDataSource: new ListView.DataSource({
                 rowHasChanged: (row1, row2)=>row1 !== row2
             }),
             fuliHistoryDataSource: new ListView.DataSource({
@@ -61,14 +63,6 @@ class HomePage extends Component {
     }
 
     _getAllData() {
-        //RequestUtils.getAllData()
-        //    .then((allData)=> {
-        //        _homePageContext.setState({
-        //            loaded: true,
-        //            androidHistoryDataSource: this.state.androidHistoryDataSource.cloneWithRows(allData.slice(0, 11)),
-        //            fuliHistoryDataSource: this.state.fuliHistoryDataSource.cloneWithRows(allData.slice(11, 20))
-        //        });
-        //    })
 
         let vanGankRequest = new VanGankRequest();
         vanGankRequest.requestALL(1, (requestStatus, result)=> {
@@ -86,43 +80,6 @@ class HomePage extends Component {
                 });
             }
         })
-    }
-
-    _getAndroidData() {
-        RequestUtils.getAndroidData(pageNo)
-            .then((androidList)=> {
-                _homePageContext.setState({
-                    loaded: true,
-                    androidHistoryDataSource: this.state.androidHistoryDataSource.cloneWithRows(androidList)
-                });
-            })
-    }
-
-    _get福利Data() {
-        RequestUtils.get福利Data(pageNo)
-            .then((androidList)=> {
-                _homePageContext.setState({
-                    loaded: true,
-                    fuliHistoryDataSource: this.state.fuliHistoryDataSource.cloneWithRows(androidList)
-                });
-            })
-    }
-
-    _getLatestData() {
-        RequestUtils.getLatestDate()
-            .then((value)=> {
-                RequestUtils.getTodayContent(value[0])
-                    .then((response)=> {
-                        latestContent = response;
-                        _homePageContext.setState({
-                            loaded: true,
-                            latestContent: latestContent
-                        });
-                    })
-            })
-            .catch((errorMsg)=> {
-                alert('error:' + errorMsg);
-            })
     }
 
     _showLoadingView() {
@@ -168,36 +125,44 @@ class HomePage extends Component {
     render() {
 
         if (!this.state.loaded) {
-
             return this._showLoadingView();
-
         } else {
-            return (
-
-                <View style={styles.root}>
-
-                    <IndicatorViewPager
-                        style={styles.indicatorViewPagerRoot}
-                        indicator={this._renderTitleIndicator()}
-                        initialPage={0}
+            if (this.state.status === 'OK') {
+                return (
+                    <View style={styles.root}>
+                        <IndicatorViewPager
+                            style={styles.indicatorViewPagerRoot}
+                            indicator={this._renderTitleIndicator()}
+                            initialPage={0}
+                        >
+                            {_homePageContext._genAndroidItemRenderView()}
+                            {_homePageContext._genAndroidItemRenderView()}
+                            {_homePageContext._gen福利ItemRenderView()}
+                        </IndicatorViewPager>
+                    </View>
+                );
+            } else {
+                return (
+                    <View
+                        style={styles.error}
                     >
-
-                        {_homePageContext._genAndroidItemRenderView()}
-                        {_homePageContext._genAndroidItemRenderView()}
-                        {_homePageContext._gen福利ItemRenderView()}
-
-                    </IndicatorViewPager>
-
-                </View>
-
-            );
+                        <Text
+                            style={{
+                                flex:1,
+                                alignSelf: 'center'
+                            }}
+                        >
+                            访问错误!
+                        </Text>
+                    </View>
+                );
+            }
         }
     }
 
     _renderTitleIndicator() {
         return <PagerTitleIndicator titles={['Android', 'IOS', '福利']}/>;
     }
-
 
     _parseImageUri(androidHistoryItem) {
         if (androidHistoryItem.hasOwnProperty('images')) {
@@ -332,6 +297,12 @@ const styles = StyleSheet.create({
     fuliHistoryItemImage: {
         width: screenWidth,
         height: screenHeight,
+    },
+
+    error: {
+        flex: 1,
+        alignItems: 'center',
+        flexDirection:'column'
     }
 
 });

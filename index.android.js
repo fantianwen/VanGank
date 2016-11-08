@@ -39,14 +39,12 @@ class VanGank extends Component {
     }
 
     _handleBack() {
-        var navigator = this.navigator;
-
+        let navigator = this.navigator;
         if (navigator && navigator.getCurrentRoutes().length > 1) {
             navigator.pop();
             return true;
         }
         return false;
-
     }
 
     render() {
@@ -69,7 +67,6 @@ class VanGank extends Component {
                            // {...route.passProps}即就是把passProps里的键值对全部以给属性赋值的方式展开 如：test={10}
                        }}
                 >
-
 
                 </Navigator>
 
