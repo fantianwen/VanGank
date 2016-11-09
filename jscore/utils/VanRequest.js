@@ -4,6 +4,8 @@
 'use strict'
 
 import Constants from '../config/APIS'
+import VanLogger from '../nativeModules/VanLogger'
+
 
 var _context;
 
@@ -30,24 +32,30 @@ class VanGankRequest {
             req.open(requestMethod, url, true);
             req.onload = ()=> {
                 if (req.status === 200) {
-                    resolve(req.responseText);
+                    let responseJson = JSON.parse(req.responseText);
+                    resolve(responseJson);
+
+                    VanLogger.i(JSON.stringify(responseJson));
                 } else {
                     reject(new Error(req.statusText));
+
+                    VanLogger.e(req.statusText);
                 }
             };
             req.onerror = ()=> {
                 reject(new Error(req.statusText));
+                VanLogger.e(req.statusText);
             };
             req.send();
         })
     }
 
     requestAndroidData(pageNo) {
-        return _context.requestUrl(ANDROID_HISTORY_URL + pageNo, 'GET').then(JSON.parse);
+        return _context.requestUrl(ANDROID_HISTORY_URL + pageNo, 'GET');
     }
 
     requestFULIData(pageNo) {
-        return _context.requestUrl(FULI_HISTORY_DATA + pageNo, 'GET').then(JSON.parse);
+        return _context.requestUrl(FULI_HISTORY_DATA + pageNo, 'GET');
     }
 
     requestALL(pageNo, callBack) {

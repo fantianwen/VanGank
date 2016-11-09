@@ -160,7 +160,6 @@ class HomePage extends Component {
         _homePageContext._ensureVanRequest();
         _vanRequest.requestAndroid(pageNo, (requestStatus, result)=> {
             if (requestStatus === 'OK') {
-                ToastAndroid.show(JSON.stringify(result), ToastAndroid.LONG);
                 _homePageContext.setState({
                     loaded: true,
                     status: 'OK',
@@ -181,9 +180,6 @@ class HomePage extends Component {
         _homePageContext._ensureVanRequest();
         _vanRequest.requestFuli(pageNo, (requestStatus, result)=> {
             if (requestStatus === 'OK') {
-
-                ToastAndroid.show(JSON.stringify(result), ToastAndroid.LONG);
-
                 _homePageContext.setState({
                     loaded: true,
                     status: 'OK',
