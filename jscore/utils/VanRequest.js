@@ -34,16 +34,18 @@ class VanGankRequest {
                 if (req.status === 200) {
                     let responseJson = JSON.parse(req.responseText);
                     resolve(responseJson);
-
-                    VanLogger.i(JSON.stringify(responseJson));
+                    // 打印日志
+                    let logText = "请求地址: " + url + ":\n\n请求结果: " + JSON.stringify(responseJson);
+                    VanLogger.i(logText);
                 } else {
                     reject(new Error(req.statusText));
-
+                    // 打印日志
                     VanLogger.e(req.statusText);
                 }
             };
             req.onerror = ()=> {
                 reject(new Error(req.statusText));
+                // 打印日志
                 VanLogger.e(req.statusText);
             };
             req.send();
