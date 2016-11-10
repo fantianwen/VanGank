@@ -35,6 +35,7 @@ class VanGankRequest {
                     let responseJson = JSON.parse(req.responseText);
                     resolve(responseJson);
                     // 打印日志
+
                     let logText = "请求地址: " + url + ":\n\n请求结果: " + JSON.stringify(responseJson);
                     VanLogger.i(logText);
                 } else {

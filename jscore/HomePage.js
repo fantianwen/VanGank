@@ -29,14 +29,19 @@ import {
 import WebViewPage from './WebViewPage'
 import CommonUtils from './utils/CommonUtls'
 import VanGankRequest from './utils/VanRequest'
+import VanLogger from './nativeModules/VanLogger'
+import * as TYPES from './config/Constants'
 
 var _homePageContext;
 var latestContent;
 var pageNo = 1;
+var isLoading = false;
 var screenWidth = CommonUtils.getScreenWidth();
 var screenHeight = CommonUtils.getScreenHeight();
 
 var _vanRequest;
+
+var androidCache;
 
 class HomePage extends Component {
 
@@ -47,6 +52,7 @@ class HomePage extends Component {
         _homePageContext = this;
 
         _vanRequest = new VanGankRequest();
+        androidCache = [];
 
         this.state = {
             loaded: false,
@@ -60,9 +66,8 @@ class HomePage extends Component {
             fuliHistoryDataSource: new ListView.DataSource({
                 rowHasChanged: (row1, row2)=>row1 !== row2
             }),
-
-            refreshing: false
-
+            refreshing: false,
+            loading: false,
         };
     }
 
@@ -76,11 +81,16 @@ class HomePage extends Component {
 
         _vanRequest.requestALL(1, (requestStatus, result)=> {
             if (requestStatus === 'OK') {
+
+                if (androidCache) {
+                    androidCache = androidCache.concat(result[0].results);
+                }
+
                 _homePageContext.setState({
                     loaded: true,
                     status: 'OK',
                     refreshing: false,
-                    androidHistoryDataSource: this.state.androidHistoryDataSource.cloneWithRows(result[0].results),
+                    androidHistoryDataSource: this.state.androidHistoryDataSource.cloneWithRows(androidCache),
                     fuliHistoryDataSource: this.state.fuliHistoryDataSource.cloneWithRows(result[1].results)
                 });
             } else {
@@ -118,7 +128,6 @@ class HomePage extends Component {
                 <ListView
                     dataSource={_homePageContext.state.androidHistoryDataSource}
                     renderRow={_homePageContext._renderAndroidHistoryDataRow}
-                    renderSeparator={_homePageContext._renderSeparator}
                     refreshControl={
                         <RefreshControl
                             refreshing={_homePageContext.state.refreshing}
@@ -131,24 +140,62 @@ class HomePage extends Component {
                             colors={['#ffaa66cc', '#ff00ddff', '#ffffbb33', '#ffff4444']}
                         />
                     }
+                    onEndReachedThreshold={10}
+                    onEndReached={_homePageContext._onEndReached}
+                    renderFooter={()=>{
+                            return _homePageContext._onRenderFooter(TYPES.ANDROID);
+                        }
+                    }
                 />
 
             </View>
         );
     }
 
+    _onRenderFooter(type) {
+
+        switch (type) {
+            case TYPES.ANDROID:
+            case TYPES.IOS:
+            case TYPES.FULI:
+                return (
+                    <View
+                        style={styles.commonFoot}
+                    >
+                        <Text
+                            style={styles.footText}
+                        >
+                            正在加载...
+                        </Text>
+                    </View>
+                );
+            default:
+                ToastAndroid.show('参数错误,请检查!');
+                VanLogger.i('参数错误,请检查!');
+                break
+        }
+
+    }
+
+
+    _onEndReached() {
+        if (!isLoading) {
+            isLoading = true;
+            VanLogger.i('onEndReached');
+            _homePageContext._ensureVanRequest();
+            pageNo += 1;
+            _homePageContext._getAndroidData(pageNo);
+        }
+    }
+
     _onRefresh(type) {
 
-        _homePageContext.setState({
-            refreshing: true
-        });
-
-        if (type == 0) {
+        if (type == TYPES.ANDROID) {
             // android 数据
             _homePageContext._getAndroidData(1);
-        } else if (type === 1) {
+        } else if (type === TYPES.IOS) {
             // IOS 数据
-        } else if (type === 2) {
+        } else if (type === TYPES.FULI) {
             _homePageContext._getFuliData(1);
         } else {
             _homePageContext._getAllData();
@@ -157,16 +204,27 @@ class HomePage extends Component {
     }
 
     _getAndroidData(pageNo) {
+
         _homePageContext._ensureVanRequest();
         _vanRequest.requestAndroid(pageNo, (requestStatus, result)=> {
             if (requestStatus === 'OK') {
+
+                if (pageNo === 1) {
+                    androidCache = [];
+                }
+
+                if (androidCache) {
+                    androidCache = androidCache.concat(result.results);
+                }
+                isLoading = false;
                 _homePageContext.setState({
                     loaded: true,
                     status: 'OK',
                     refreshing: false,
-                    androidHistoryDataSource: this.state.androidHistoryDataSource.cloneWithRows(result.results)
+                    androidHistoryDataSource: this.state.androidHistoryDataSource.cloneWithRows(androidCache)
                 });
             } else {
+                _homePageContext.isLoading = false;
                 _homePageContext.setState({
                     loaded: true,
                     status: 'FAIL',
@@ -209,7 +267,7 @@ class HomePage extends Component {
                         <RefreshControl
                             refreshing={_homePageContext.state.refreshing}
                             onRefresh={()=>{
-                                    _homePageContext._onRefresh(2);
+                                    _homePageContext._onRefresh(TYPES.FULI);
                                 }
                             }
                             tintColor='#aaaaaa'
@@ -316,8 +374,13 @@ class HomePage extends Component {
                     <Image
                         style={styles.androidHistoryItemImage}
                         source={{uri: _homePageContext._parseImageUri(androidHistoryItem)}}
-                        elevation={5}
                     >
+                        <Text
+                            style={styles.textInnerImage}
+                        >
+                            {androidHistoryItem.who}
+                        </Text>
+
                     </Image>
 
                     <Text
@@ -368,14 +431,22 @@ const styles = StyleSheet.create({
         flex: 1,
         flexDirection: 'column',
         alignItems: 'center',
-        backgroundColor: '#FDF5E6',
-        paddingTop: 10,
-        paddingBottom: 20
+        backgroundColor: '#FF5722',
+        paddingBottom: 20,
+        elevation: 5,
+        marginLeft: 16,
+        marginRight: 16,
+        marginTop: 8,
+        marginBottom: 8
     },
 
     androidHistoryItemImage: {
-        width: screenWidth,
-        height: 250
+        flex: 1,
+        width: screenWidth - 32,
+        height: 250,
+        marginLeft: 16,
+        marginRight: 16,
+        flexDirection: 'row',
     },
 
     androidHistoryItemDesc: {
@@ -385,7 +456,7 @@ const styles = StyleSheet.create({
     },
 
     androidHistoryContainer: {
-        backgroundColor: '#FFB6C1'
+        backgroundColor: '#BDBDBD'
     },
 
     listViewSeparator: {
@@ -403,6 +474,25 @@ const styles = StyleSheet.create({
         flex: 1,
         alignItems: 'center',
         flexDirection: 'column'
+    },
+
+    commonFoot: {
+        flex: 1,
+        backgroundColor: '#ef9a9a',
+        padding: 5
+    },
+
+    footText: {
+        textAlign: 'center'
+    },
+
+    textInnerImage: {
+        fontSize: 16,
+        color: '#CDDC39',
+        alignSelf: 'flex-end',
+        marginLeft: 18,
+        marginBottom: 8
+
     }
 
 });

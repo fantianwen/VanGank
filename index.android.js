@@ -51,7 +51,7 @@ class VanGank extends Component {
         return (
             <View style={{flex:1}}>
 
-                <StatusBar backgroundColor='transparent'
+                <StatusBar backgroundColor='#E64A19'
                 >
 
                 </StatusBar>
