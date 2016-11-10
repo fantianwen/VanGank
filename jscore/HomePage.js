@@ -288,6 +288,11 @@ class HomePage extends Component {
             if (this.state.status === 'OK') {
                 return (
                     <View style={styles.root}>
+
+                        <View
+                            style={styles.toolBar}
+                        />
+
                         <IndicatorViewPager
                             style={styles.indicatorViewPagerRoot}
                             indicator={this._renderTitleIndicator()}
@@ -319,7 +324,11 @@ class HomePage extends Component {
     }
 
     _renderTitleIndicator() {
-        return <PagerTitleIndicator titles={['Android', 'IOS', '福利']}/>;
+        return <PagerTitleIndicator
+            backgroundColor="#FF5722"
+            titles={['Android', 'IOS', '福利']}
+
+        />;
     }
 
     _parseImageUri(androidHistoryItem) {
@@ -409,7 +418,9 @@ class HomePage extends Component {
 
 const styles = StyleSheet.create({
     root: {
-        flex: 1
+        flex: 1,
+        flexDirection: 'column',
+        justifyContent:'flex-start'
     },
 
     loadingViewContainer: {
@@ -492,6 +503,11 @@ const styles = StyleSheet.create({
         alignSelf: 'flex-end',
         marginLeft: 18,
         marginBottom: 8
+    },
+
+    toolBar: {
+        height: 48,
+        backgroundColor: '#E64A19'
     }
 
 });
