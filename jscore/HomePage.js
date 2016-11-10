@@ -492,7 +492,6 @@ const styles = StyleSheet.create({
         alignSelf: 'flex-end',
         marginLeft: 18,
         marginBottom: 8
-
     }
 
 });
