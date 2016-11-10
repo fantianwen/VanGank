@@ -17,7 +17,8 @@ import {
     Image,
     ToastAndroid,
     TouchableOpacity,
-    RefreshControl
+    RefreshControl,
+    DrawerLayoutAndroid
 } from 'react-native';
 
 import {
@@ -117,6 +118,14 @@ class HomePage extends Component {
                                     color='green'
                 />
 
+            </View>
+        );
+    }
+
+    _renderNavigationView() {
+        return (
+            <View style={{flex: 1, backgroundColor: '#fff'}}>
+                <Text style={{margin: 10, fontSize: 15, textAlign: 'left'}}>I'm in the Drawer!</Text>
             </View>
         );
     }
@@ -287,22 +296,42 @@ class HomePage extends Component {
         } else {
             if (this.state.status === 'OK') {
                 return (
-                    <View style={styles.root}>
+                    <DrawerLayoutAndroid
+                        drawerWidth={250}
+                        drawerPosition={DrawerLayoutAndroid.positions.Left}
+                        renderNavigationView={_homePageContext._renderNavigationView}
+                    >
+                        <View style={styles.root}>
 
-                        <View
-                            style={styles.toolBar}
-                        />
+                            <View
+                                style={styles.toolBar}
+                            >
+                                <Text
+                                    style={{
+                                        color: 'white',
+                                        fontSize: 20,
+                                        textAlign: 'center',
+                                        alignSelf: 'center',
+                                        marginLeft: 16
+                                    }}
+                                >
+                                    VanGank
+                                </Text>
+                            </View>
 
-                        <IndicatorViewPager
-                            style={styles.indicatorViewPagerRoot}
-                            indicator={this._renderTitleIndicator()}
-                            initialPage={0}
-                        >
-                            {_homePageContext._genAndroidItemRenderView()}
-                            {_homePageContext._genAndroidItemRenderView()}
-                            {_homePageContext._gen福利ItemRenderView()}
-                        </IndicatorViewPager>
-                    </View>
+                            <IndicatorViewPager
+                                style={styles.indicatorViewPagerRoot}
+                                indicator={this._renderTitleIndicator()}
+                                initialPage={0}
+                            >
+                                {_homePageContext._genAndroidItemRenderView()}
+                                {_homePageContext._genAndroidItemRenderView()}
+                                {_homePageContext._gen福利ItemRenderView()}
+                            </IndicatorViewPager>
+                        </View>
+
+                    </DrawerLayoutAndroid>
+
                 );
             } else {
                 return (
@@ -420,7 +449,7 @@ const styles = StyleSheet.create({
     root: {
         flex: 1,
         flexDirection: 'column',
-        justifyContent:'flex-start'
+        justifyContent: 'flex-start'
     },
 
     loadingViewContainer: {
@@ -507,7 +536,8 @@ const styles = StyleSheet.create({
 
     toolBar: {
         height: 48,
-        backgroundColor: '#E64A19'
+        backgroundColor: '#E64A19',
+        flexDirection: 'row'
     }
 
 });
